@@ -8,10 +8,16 @@ ExtendsManifestPlugin.prototype.apply = function(compiler) {
 
   compiler.plugin('compilation', function(compilation, params) {
     manifest = {}
-    let pagesDir = path.resolve(process.cwd(), 'resources', 'views', 'pages')
+    let viewsDir = path.resolve(process.cwd(), 'resources', 'views')
+    let pagesDir = path.resolve(viewsDir, 'pages')
+    let errorsDir = path.resolve(viewsDir, 'errors')
 
     compilation.plugin('succeed-module', function(module) {
-      if (module.resource && path.dirname(module.resource) === pagesDir) {
+      if (
+        module.resource &&
+        (module.resource.startsWith(pagesDir) ||
+          module.resource.startsWith(errorsDir))
+      ) {
         let matches = module
           .originalSource()
           .source()
@@ -19,10 +25,11 @@ ExtendsManifestPlugin.prototype.apply = function(compiler) {
             /\.extends = ((?=["'])(?:"[^"\\]*(?:\\[\s\S][^"\\]*)*"|'[^'\\]*(?:\\[\s\S][^'\\]*)*'))/
           )
         if (matches) {
-          manifest[path.basename(module.resource, '.js')] = matches[1].substr(
-            1,
-            matches[1].length - 2
-          )
+          manifest[
+            module.resource
+              .replace(viewsDir + path.sep, '')
+              .replace(/\.js$/, '')
+          ] = matches[1].substr(1, matches[1].length - 2)
         }
       }
     })

@@ -23,7 +23,9 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
                 return;
             }
 
-            $name = basename($viewPath, '.js');
+            $viewDir = base_path('resources/views');
+            $name = str_replace($viewDir . '/', '', $viewPath);
+            $name = preg_replace('/\.js$/', '', $name);
 
             $viewFactory = $view->getFactory();
             $sharedData = (array) $viewFactory->getShared();

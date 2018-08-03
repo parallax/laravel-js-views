@@ -42,7 +42,7 @@ mix.extend(
       dset(
         config,
         ['resolve', 'alias', '__laravel_views__'],
-        path.resolve(config.context, './resources/views/pages')
+        path.resolve(config.context, './resources/views')
       )
       dset(
         config,
@@ -58,7 +58,11 @@ mix.extend(
       config.plugins.push(
         new webpack.DefinePlugin({
           'process.env.JS_ENV': JSON.stringify(env)
-        })
+        }),
+        new webpack.IgnorePlugin(
+          /^\.\/(?!(pages|errors)\/)/,
+          /resources\/views$/
+        )
       )
 
       if (env !== 'node') {
