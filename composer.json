@@ -1,0 +1,37 @@
+{
+  "name": "parallax/laravel-js-views",
+  "description": "",
+  "homepage": "https://github.com/parallax/laravel-js-views",
+  "keywords": [
+    "parallax",
+    "javascript",
+    "ssr",
+    "laravel",
+    "v8"
+  ],
+  "authors": [
+    {
+      "name": "Brad Cornes",
+      "email": "brad@parall.ax"
+    }
+  ],
+  "license": "MIT",
+  "require": {
+    "illuminate/support": "5.6.*",
+    "php": ">=7"
+  },
+  "autoload": {
+    "psr-4": {
+      "Parallax\\LaravelJsViews\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Parallax\\LaravelJsViews\\LaravelJsViewsServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
