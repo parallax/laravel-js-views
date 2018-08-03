@@ -10,7 +10,7 @@ Add `laravel-js-views` to your Laravel Mix configuration:
 
 ```diff
 let mix = require('laravel-mix')
-+ require('./vendor/parallax/laravel-js-views/src/js/mix.js')
++ require('./vendor/parallax/laravel-js-views/mix')
 
 + mix.views()
 ```
