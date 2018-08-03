@@ -2,6 +2,19 @@
 
 ## Getting started
 
+Add the repo to your **`composer.json`** file:
+
+```json
+{
+  "repositories": [
+    {
+      "url": "https://github.com/parallax/laravel-js-views.git",
+      "type": "git"
+    }
+  ]
+}
+```
+
 ```
 composer require parallax/laravel-js-views
 ```
