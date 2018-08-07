@@ -110,8 +110,8 @@ class PreactViewsPreset extends Preset
     protected static function removeBootstrapping()
     {
         tap(new Filesystem, function ($files) {
-            $files->delete('assets/js/app.js');
-            $files->delete('assets/js/bootstrap.js');
+            $files->delete(resource_path('assets/js/app.js'));
+            $files->delete(resource_path('assets/js/bootstrap.js'));
         });
     }
 
