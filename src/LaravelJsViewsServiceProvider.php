@@ -1,9 +1,11 @@
 <?php
 
 namespace Parallax\LaravelJsViews;
+
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Foundation\Console\PresetCommand;
 
 class LaravelJsViewsServiceProvider extends ServiceProvider
 {
@@ -14,6 +16,10 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        PresetCommand::macro('preact-views', function($command) {
+            PreactViewsPreset::install();
+        });
+
         View::addExtension('js', 'blade');
 
         View::creator('*', function($view) {
