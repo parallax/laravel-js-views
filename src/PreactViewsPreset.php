@@ -23,6 +23,7 @@ class PreactViewsPreset extends Preset
         static::removeBootstrapping();
         static::removeComponent();
         static::removeNodeModules();
+        static::removeBuilt();
         static::createLayout();
     }
 
@@ -127,6 +128,16 @@ class PreactViewsPreset extends Preset
             $files->delete(base_path('yarn.lock'));
             $files->delete(base_path('package-lock.json'));
         });
+    }
+
+    /**
+     * Remove the built JS.
+     *
+     * @return void
+     */
+    protected static function removeBuilt()
+    {
+        (new Filesystem)->deleteDirectory(public_path('js'));
     }
 
     /**
