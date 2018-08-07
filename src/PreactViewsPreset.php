@@ -18,6 +18,7 @@ class PreactViewsPreset extends Preset
         static::ensureComponentDirectoryExists();
         static::ensureLayoutDirectoryExists();
         static::updatePackages();
+        static::updateScripts();
         static::updateWebpackConfiguration();
         static::removeBootstrapping();
         static::removeComponent();
@@ -53,6 +54,30 @@ class PreactViewsPreset extends Preset
             'babel-plugin-syntax-dynamic-import' => '^6.18.0',
             'clean-webpack-plugin' => '^0.1.19',
         ] + Arr::except($packages, ['vue']);
+    }
+
+    /**
+     * Update the "package.json" file.
+     *
+     * @return void
+     */
+    protected static function updateScripts()
+    {
+        if (! file_exists(base_path('package.json'))) {
+            return;
+        }
+
+        $packages = json_decode(file_get_contents(base_path('package.json')), true);
+
+        $packages['scripts'] = array_merge(
+            array_key_exists('scripts', $packages) ? $packages['scripts'] : [],
+            ['build' => 'cross-env JS_ENV=web npm run prod && cross-env JS_ENV=node npm run prod']
+        );
+
+        file_put_contents(
+            base_path('package.json'),
+            json_encode($packages, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT).PHP_EOL
+        );
     }
 
     /**
