@@ -32,7 +32,7 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
                 return;
             }
 
-            $viewDir = base_path('resources/views');
+            $viewDir = resource_path('views');
             $name = str_replace($viewDir . '/', '', $viewPath);
             $name = preg_replace('/\.js$/', '', $name);
 
@@ -65,7 +65,7 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
             $output = [];
             $scripts = '<script>window.routes=' . json_encode($routes) . ';window.page="' . $name . '";window.__INITIAL_PROPS__=' . json_encode($props) . '</script>';
 
-            if (file_exists(base_path('public/js/node/main.js'))) {
+            if (file_exists(public_path('js/node/main.js'))) {
                 $bootstrap = 'var console=["log","warn","error","info","assert","clear","count","countReset","debug","dir","dirxml","exception","group","groupCollapsed","groupEnd","profile","profileEnd","table","time","timeEnd","timeLog","timeStamp","trace"].reduce((acc,curr) => {acc[curr]=(...args)=>{require(`__laravel_console_${curr}_${JSON.stringify(args)}__`)};return acc;}, {});';
                 $bootstrap .= 'var global={page:"' . $name . '",routes:' . json_encode($routes) . ',props:' . json_encode($props) . '};';
 
@@ -93,9 +93,9 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
                         }, $args);
                         return 'module.exports=undefined;';
                     }
-                    return $bootstrap . file_get_contents(base_path('public/' . $path));
+                    return $bootstrap . file_get_contents(public_path($path));
                 });
-                $js = $bootstrap . file_get_contents(base_path('public/js/node/main.js'));
+                $js = $bootstrap . file_get_contents(public_path('js/node/main.js'));
                 ob_start();
                 $v8->executeString($js);
 
@@ -106,7 +106,7 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
                 $scripts .= '<script src="http://localhost:8080/js/web/main.js"></script>';
             }
 
-            $layoutManifest = json_decode(file_get_contents(base_path('public/layout-manifest.json')), true);
+            $layoutManifest = json_decode(file_get_contents(public_path('layout-manifest.json')), true);
             $view->setPath(View::getFinder()->find($layoutManifest[$name]));
 
             foreach ($output as $section => $value) {
