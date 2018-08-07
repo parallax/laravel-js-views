@@ -62,8 +62,9 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
                 }
             }
 
-            $output = [];
-            $scripts = '<script>window.routes=' . json_encode($routes) . ';window.page="' . $name . '";window.__INITIAL_PROPS__=' . json_encode($props) . '</script>';
+            $sections = [
+                'scripts' => '<script>window.routes=' . json_encode($routes) . ';window.page="' . $name . '";window.__INITIAL_PROPS__=' . json_encode($props) . '</script>'
+            ];
 
             if (file_exists(public_path('js/node/main.js'))) {
                 $bootstrap = 'var console=["log","warn","error","info","assert","clear","count","countReset","debug","dir","dirxml","exception","group","groupCollapsed","groupEnd","profile","profileEnd","table","time","timeEnd","timeLog","timeStamp","trace"].reduce((acc,curr) => {acc[curr]=(...args)=>{require(`__laravel_console_${curr}_${JSON.stringify(args)}__`)};return acc;}, {});';
@@ -99,25 +100,21 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
                 ob_start();
                 $v8->executeString($js);
 
-                $output = json_decode(ob_get_clean(), true);
+                $sections = array_merge(json_decode(ob_get_clean(), true), $sections);
 
-                $scripts .= '<script src="/js/web/main.js"></script>';
+                $sections['scripts'] .= '<script src="/js/web/main.js"></script>';
             } else {
-                $scripts .= '<script src="http://localhost:8080/js/web/main.js"></script>';
+                $sections['scripts'] .= '<script src="http://localhost:8080/js/web/main.js"></script>';
             }
 
             $layoutManifest = json_decode(file_get_contents(public_path('layout-manifest.json')), true);
             $view->setPath(View::getFinder()->find($layoutManifest[$name]));
 
-            foreach ($output as $section => $value) {
+            foreach ($sections as $section => $value) {
                 $viewFactory->startSection($section);
                 echo $value;
                 $viewFactory->stopSection();
             }
-
-            $viewFactory->startSection('scripts');
-            echo $scripts;
-            $viewFactory->stopSection();
         });
     }
 }
