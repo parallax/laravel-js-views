@@ -20,6 +20,7 @@ class PreactViewsPreset extends Preset
         static::updatePackages();
         static::updateScripts();
         static::updateWebpackConfiguration();
+        static::updateWelcomeView();
         static::removeBootstrapping();
         static::removeComponent();
         static::removeNodeModules();
@@ -148,5 +149,16 @@ class PreactViewsPreset extends Preset
     protected static function createLayout()
     {
         copy(__DIR__.'/templates/layout-stub.blade.php', resource_path('views/layouts/example.blade.php'));
+    }
+
+    /**
+     * Create the example view.
+     *
+     * @return void
+     */
+    protected static function updateWelcomeView()
+    {
+        (new Filesystem)->delete(resource_path('views/welcome.blade.php'));
+        copy(__DIR__.'/js/preact/page-stub.js', resource_path('views/welcome.js'));
     }
 }
