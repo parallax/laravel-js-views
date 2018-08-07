@@ -9,15 +9,9 @@ ExtendsManifestPlugin.prototype.apply = function(compiler) {
   compiler.plugin('compilation', function(compilation, params) {
     manifest = {}
     let viewsDir = path.resolve(process.cwd(), 'resources', 'views')
-    let pagesDir = path.resolve(viewsDir, 'pages')
-    let errorsDir = path.resolve(viewsDir, 'errors')
 
     compilation.plugin('succeed-module', function(module) {
-      if (
-        module.resource &&
-        (module.resource.startsWith(pagesDir) ||
-          module.resource.startsWith(errorsDir))
-      ) {
+      if (module.resource && module.resource.startsWith(viewsDir)) {
         let matches = module
           .originalSource()
           .source()
