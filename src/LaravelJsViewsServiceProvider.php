@@ -18,6 +18,9 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
     {
         PresetCommand::macro('preact-views', function($command) {
             PreactViewsPreset::install();
+
+            $this->info('laravel-js-views (Preact) scaffolding installed successfully.');
+            $this->comment('Please run "npm install && npm run build" to compile your fresh scaffolding.');
         });
 
         View::addExtension('js', 'blade');
