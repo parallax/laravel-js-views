@@ -8,7 +8,8 @@ let path = require('path')
 let env = process.env.JS_ENV || 'web'
 
 let deps = {
-  preact: ['preact-render-to-string']
+  preact: ['preact-render-to-string'],
+  vue: ['vue-server-renderer']
 }
 
 mix.extend(
