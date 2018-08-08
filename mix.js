@@ -22,11 +22,11 @@ mix.extend(
         Mix.manifest = new Manifest('mix-manifest-node.json')
       }
 
-      this.lib = lib
+      this.lib = lib.toLowerCase()
 
-      if (lib === 'vue') {
+      if (this.lib === 'vue') {
         this.super = new Vue()
-      } else if (lib === 'preact') {
+      } else if (this.lib === 'preact') {
         this.super = new Preact()
       }
     }
@@ -42,6 +42,8 @@ mix.extend(
     }
 
     webpackConfig(config) {
+      this.super.webpackConfig && this.super.webpackConfig(config)
+
       dset(
         config,
         ['entry', `js/${env}/main`],

@@ -24,17 +24,19 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
         });
 
         View::addExtension('js', 'blade');
+        View::addExtension('vue', 'blade');
 
         View::creator('*', function($view) {
             $viewPath = $view->getPath();
 
-            if (pathinfo($viewPath, PATHINFO_EXTENSION) !== 'js') {
+            $ext = pathinfo($viewPath, PATHINFO_EXTENSION);
+            if ($ext !== 'js' && $ext !== 'vue') {
                 return;
             }
 
             $viewDir = resource_path('views');
             $name = str_replace($viewDir . '/', '', $viewPath);
-            $name = preg_replace('/\.js$/', '', $name);
+            $name = preg_replace('/\.(js|vue)$/', '', $name);
 
             $viewFactory = $view->getFactory();
             $sharedData = (array) $viewFactory->getShared();
@@ -68,7 +70,8 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
 
             if (file_exists(public_path('js/node/main.js'))) {
                 $bootstrap = 'var console=["log","warn","error","info","assert","clear","count","countReset","debug","dir","dirxml","exception","group","groupCollapsed","groupEnd","profile","profileEnd","table","time","timeEnd","timeLog","timeStamp","trace"].reduce((acc,curr) => {acc[curr]=(...args)=>{require(`__laravel_console_${curr}_${JSON.stringify(args)}__`)};return acc;}, {});';
-                $bootstrap .= 'var global={page:"' . $name . '",routes:' . json_encode($routes) . ',props:' . json_encode($props) . '};';
+                $bootstrap .= 'var process = { env: { VUE_ENV: "server", NODE_ENV: "production" } };';
+                $bootstrap .= 'this.global = { process, page: "' . $name . '", routes: ' . json_encode($routes) . ', props: ' . json_encode($props) . ' };';
 
                 $v8 = new \V8Js();
                 $v8->setModuleLoader(function($path) use ($bootstrap) {

@@ -10,7 +10,7 @@ let loaded = {
   }.vue`).then(c => {
     return {
       view: window.page,
-      Component: c.default,
+      Component: c.default || c,
       data: window.__INITIAL_PROPS__
     }
   })
@@ -64,7 +64,7 @@ function load(path) {
       })
       .then(c => {
         return {
-          Component: c.default,
+          Component: c.default || c,
           view: v,
           data: d
         }
@@ -75,6 +75,6 @@ function load(path) {
 
 if (module.hot) {
   module.hot.accept()
-  let NextApp = require(`__laravel_views__/${view}.js`).default
-  render(NextApp, data)
+  let NextApp = require(`__laravel_views__/${view}.vue`)
+  render(NextApp.default || NextApp, data)
 }
