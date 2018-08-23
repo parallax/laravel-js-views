@@ -5,7 +5,7 @@ namespace Parallax\LaravelJsViews;
 use Illuminate\Support\Arr;
 use Illuminate\Filesystem\Filesystem;
 
-class PreactViewsPreset extends ViewsPreset
+class VueViewsPreset extends ViewsPreset
 {
     /**
      * Update the given package array.
