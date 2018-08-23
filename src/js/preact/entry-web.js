@@ -5,7 +5,7 @@ function getCurrentUrl() {
 }
 
 let loaded = {
-  [getCurrentUrl()]: import(/* webpackChunkName: 'js/web/pages/[request]' */ `__laravel_views__/${
+  [getCurrentUrl()]: import(/* webpackChunkName: 'js/[request]' */ `__laravel_views__/${
     window.page
   }.js`).then(c => {
     return {

@@ -112,9 +112,9 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
 
                 $sections = array_merge(json_decode(ob_get_clean(), true), $sections);
 
-                $sections['scripts'] .= '<script src="/js/web/main.js"></script>';
+                $sections['scripts'] .= '<script src="/js/main.js"></script>';
             } else {
-                $sections['scripts'] .= '<script src="http://localhost:8080/js/web/main.js"></script>';
+                $sections['scripts'] .= '<script src="http://localhost:8080/js/main.js"></script>';
             }
 
             $layoutManifest = json_decode(file_get_contents(public_path('layout-manifest.json')), true);

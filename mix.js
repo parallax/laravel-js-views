@@ -46,7 +46,7 @@ mix.extend(
 
       dset(
         config,
-        ['entry', `js/${env}/main`],
+        ['entry', env === 'node' ? 'js/node/main' : 'js/main'],
         path.resolve(__dirname, `./src/js/${this.lib}/entry.js`)
       )
 
