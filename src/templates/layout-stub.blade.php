@@ -9,6 +9,6 @@
     </head>
     <body>
         @yield('html')
-        @yield('scripts')
+        <script src="{{ mix('/js/main.js') }}"></script>
     </body>
 </html>

@@ -16,6 +16,8 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->app['router']->pushMiddlewareToGroup('web', LaravelJsViewsMiddleware::class);
+
         PresetCommand::macro('views:preact', function($command) {
             PreactViewsPreset::install();
 
@@ -71,9 +73,8 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
                 }
             }
 
-            $sections = [
-                'scripts' => '<script>window.routes=' . json_encode($routes) . ';window.page="' . $name . '";window.__INITIAL_PROPS__=' . json_encode($props) . '</script>'
-            ];
+            $sections = [];
+            $scripts = '<!-- __laravel_js_views_scripts_start__ --><script>window.routes=' . json_encode($routes) . ';window.page="' . $name . '";window.__INITIAL_PROPS__=' . json_encode($props) . '</script><!-- __laravel_js_views_scripts_end__ -->';
 
             if (file_exists(public_path('js/node/main.js'))) {
                 $bootstrap = 'var console=["log","warn","error","info","assert","clear","count","countReset","debug","dir","dirxml","exception","group","groupCollapsed","groupEnd","profile","profileEnd","table","time","timeEnd","timeLog","timeStamp","trace"].reduce((acc,curr) => {acc[curr]=(...args)=>{require(`__laravel_console_${curr}_${JSON.stringify(args)}__`)};return acc;}, {});';
@@ -111,11 +112,10 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
                 $v8->executeString($js);
 
                 $sections = array_merge(json_decode(ob_get_clean(), true), $sections);
-
-                $sections['scripts'] .= '<script src="/js/main.js"></script>';
-            } else {
-                $sections['scripts'] .= '<script src="http://localhost:8080/js/main.js"></script>';
             }
+
+            // TODO: check there’s a `html` section defined
+            $sections['html'] .= $scripts;
 
             $layoutManifest = json_decode(file_get_contents(public_path('layout-manifest.json')), true);
             $view->setPath(View::getFinder()->find($layoutManifest[$name]));
