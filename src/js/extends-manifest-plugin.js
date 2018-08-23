@@ -10,19 +10,30 @@ ExtendsManifestPlugin.prototype.apply = function(compiler) {
     manifest = {}
     let viewsDir = path.resolve(process.cwd(), 'resources', 'views')
 
+    compilation.plugin('build-module', function(module) {
+      if (module.resource && module.resource.endsWith('.vue')) {
+        module.loaders.push(path.resolve(__dirname, 'vue-extends-loader.js'))
+      }
+    })
+
     compilation.plugin('succeed-module', function(module) {
       if (module.resource && module.resource.startsWith(viewsDir)) {
-        let matches = module
-          .originalSource()
-          .source()
-          .match(
+        let source = module.originalSource().source()
+        let matches
+
+        if (module.resource.endsWith('.vue')) {
+          matches = source.match(/\/\* __laravel_extends__\[([^\]]+)\] \*\//)
+        } else {
+          matches = source.match(
             /\.extends = ((?=["'])(?:"[^"\\]*(?:\\[\s\S][^"\\]*)*"|'[^'\\]*(?:\\[\s\S][^'\\]*)*'))/
           )
+        }
+
         if (matches) {
           manifest[
             module.resource
               .replace(viewsDir + path.sep, '')
-              .replace(/\.js$/, '')
+              .replace(/\.(js|vue)$/, '')
           ] = matches[1].substr(1, matches[1].length - 2)
         }
       }

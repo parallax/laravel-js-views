@@ -16,9 +16,8 @@ class PreactViewsPreset extends ViewsPreset
     protected static function updatePackageArray(array $packages)
     {
         return [
-            'babel-preset-preact' => '^1.1.0',
-            'preact' => '^8.3.0',
-            'preact-render-to-string' => '^3.8.0',
+            'vue' => '^2.5.17',
+            'vue-server-renderer' => '^2.5.17',
             'babel-plugin-syntax-dynamic-import' => '^6.18.0',
             'clean-webpack-plugin' => '^0.1.19',
         ] + Arr::except($packages, ['vue']);
@@ -31,7 +30,7 @@ class PreactViewsPreset extends ViewsPreset
      */
     protected static function updateWebpackConfiguration()
     {
-        copy(__DIR__.'/js/preact/mix-stub.js', base_path('webpack.mix.js'));
+        copy(__DIR__.'/js/vue/mix-stub.js', base_path('webpack.mix.js'));
     }
 
     /**
@@ -42,6 +41,6 @@ class PreactViewsPreset extends ViewsPreset
     protected static function updateWelcomeView()
     {
         (new Filesystem)->delete(resource_path('views/welcome.blade.php'));
-        copy(__DIR__.'/js/preact/page-stub.js', resource_path('views/welcome.js'));
+        copy(__DIR__.'/js/vue/page-stub.vue', resource_path('views/welcome.vue'));
     }
 }

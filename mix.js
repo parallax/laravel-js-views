@@ -1,40 +1,53 @@
 let mix = require('laravel-mix')
 let Manifest = require('laravel-mix/src/Manifest.js')
+let Vue = require('laravel-mix/src/components/Vue.js')
+let Preact = require('laravel-mix/src/components/Preact.js')
 let webpack = require('webpack')
 let ExtendsManifestPlugin = require('./src/js/extends-manifest-plugin.js')
 let path = require('path')
 let env = process.env.JS_ENV || 'web'
 
+let deps = {
+  preact: ['preact-render-to-string'],
+  vue: ['vue-server-renderer']
+}
+
 mix.extend(
   'views',
   new class {
-    register(lib) {
+    register(lib = 'preact') {
       Mix.bundlingJavaScript = true
 
       if (env === 'node') {
         Mix.manifest = new Manifest('mix-manifest-node.json')
       }
+
+      this.lib = lib.toLowerCase()
+
+      if (this.lib === 'vue') {
+        this.super = new Vue()
+      } else if (this.lib === 'preact') {
+        this.super = new Preact()
+      }
     }
 
     dependencies() {
-      return [
-        'clean-webpack-plugin',
-        'preact',
-        'preact-render-to-string',
-        'babel-preset-preact',
-        'babel-plugin-syntax-dynamic-import'
-      ]
+      return ['clean-webpack-plugin', 'babel-plugin-syntax-dynamic-import']
+        .concat(deps[this.lib])
+        .concat(this.super.dependencies())
     }
 
-    webpackRules() {}
-
-    webpackPlugins() {}
+    webpackPlugins() {
+      return this.super.webpackPlugins ? this.super.webpackPlugins() : []
+    }
 
     webpackConfig(config) {
+      this.super.webpackConfig && this.super.webpackConfig(config)
+
       dset(
         config,
         ['entry', `js/${env}/main`],
-        path.resolve(__dirname, `./src/js/preact/entry.js`)
+        path.resolve(__dirname, `./src/js/${this.lib}/entry.js`)
       )
 
       config.target = env
@@ -47,12 +60,12 @@ mix.extend(
       dset(
         config,
         ['resolve', 'alias', '__laravel_render_node__$'],
-        path.resolve(__dirname, './src/js/preact/render-node.js')
+        path.resolve(__dirname, `./src/js/${this.lib}/render-node.js`)
       )
       dset(
         config,
         ['resolve', 'alias', '__laravel_render_web__$'],
-        path.resolve(__dirname, './src/js/preact/render-web.js')
+        path.resolve(__dirname, `./src/js/${this.lib}/render-web.js`)
       )
 
       config.plugins.push(
@@ -71,25 +84,15 @@ mix.extend(
     }
 
     webpackRules() {
-      return [
-        {
-          test: /\.jsx?$/,
-          exclude: /(node_modules|bower_components)/,
-          use: [
-            {
-              loader: 'babel-loader',
-              options: Config.babel()
-            }
-          ]
-        }
-      ]
+      return this.super.webpackRules ? this.super.webpackRules() : []
     }
 
     babelConfig() {
-      return {
-        presets: ['babel-preset-preact'],
-        plugins: ['babel-plugin-syntax-dynamic-import']
-      }
+      let config = this.super.babelConfig ? this.super.babelConfig() : {}
+      config.plugins = config.plugins
+        ? [...config.plugins, 'babel-plugin-syntax-dynamic-import']
+        : ['babel-plugin-syntax-dynamic-import']
+      return config
     }
   }()
 )
