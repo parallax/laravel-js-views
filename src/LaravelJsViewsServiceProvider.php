@@ -16,6 +16,10 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->publishes([
+            __DIR__ . '/config/js-views.php' => config_path('js-views.php')
+        ]);
+
         $this->app['router']->pushMiddlewareToGroup('web', LaravelJsViewsMiddleware::class);
 
         PresetCommand::macro('views:preact', function($command) {
@@ -76,7 +80,7 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
             $sections = [];
             $scripts = '<!-- __laravel_js_views_scripts_start__ --><script>window.routes=' . json_encode($routes) . ';window.page="' . $name . '";window.__INITIAL_PROPS__=' . json_encode($props) . '</script><!-- __laravel_js_views_scripts_end__ -->';
 
-            if (file_exists(public_path('js/node/main.js'))) {
+            if (class_exists('V8Js') && file_exists(public_path('js/node/main.js'))) {
                 $bootstrap = 'var console=["log","warn","error","info","assert","clear","count","countReset","debug","dir","dirxml","exception","group","groupCollapsed","groupEnd","profile","profileEnd","table","time","timeEnd","timeLog","timeStamp","trace"].reduce((acc,curr) => {acc[curr]=(...args)=>{require(`__laravel_console_${curr}_${JSON.stringify(args)}__`)};return acc;}, {});';
                 $bootstrap .= 'var process = { env: { VUE_ENV: "server", NODE_ENV: "production" } };';
                 $bootstrap .= 'this.global = { process, page: "' . $name . '", routes: ' . json_encode($routes) . ', props: ' . json_encode($props) . ' };';
@@ -112,6 +116,8 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
                 $v8->executeString($js);
 
                 $sections = array_merge(json_decode(ob_get_clean(), true), $sections);
+            } else {
+                $sections['html'] = config('js-views.fallback', '<div id="app"></div>');
             }
 
             // TODO: check there’s a `html` section defined
