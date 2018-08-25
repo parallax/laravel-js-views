@@ -5,19 +5,30 @@
 Add the repo to your **`composer.json`** file:
 
 ```json
-{
-  "repositories": [
-    {
-      "url": "https://github.com/parallax/laravel-js-views.git",
-      "type": "git"
-    }
-  ]
-}
+"repositories": [
+  {
+    "url": "https://github.com/parallax/laravel-js-views.git",
+    "type": "git"
+  }
+]
 ```
 
 ```
-composer require parallax/laravel-js-views
+$ composer require parallax/laravel-js-views
 ```
+
+### Preset
+
+If you’re starting a new Laravel project with Laravel Mix you can get set up quickly by using one of the `laravel-js-views` presets:
+
+- `views:preact`
+- `views:vue`
+
+```bash
+$ php artisan preset views:preact
+```
+
+### Manual
 
 Add `laravel-js-views` to your Laravel Mix configuration:
 
@@ -34,6 +45,8 @@ Add a new npm script to `package.json` which compiles web and node versions of y
 "build": "cross-env JS_ENV=web npm run prod && cross-env JS_ENV=node npm run prod"
 ```
 
+## Layouts
+
 Create a blade layout in your `/resources/views` directory, for example `/resources/views/layouts/default.blade.php`:
 
 ```html
@@ -45,12 +58,14 @@ Create a blade layout in your `/resources/views` directory, for example `/resour
 </head>
 <body>
   @yield('html')
-  @yield('scripts')
+  <script src="{{ mix('/js/main.js') }}"></script>
 </body>
 </html>
 ```
 
-Create your pages in the `/resources/views/pages` directory, for example `/resources/views/pages/home.js`
+## Views
+
+Create your view components in the `/resources/views` directory, for example `/resources/views/home.js`
 
 ```js
 import { h, Component } from 'preact'
@@ -70,7 +85,7 @@ Render the view like you would any blade view:
 
 ```php
 // /routes/web.php
-Route::view('/', 'pages.home');
+Route::view('/', 'home');
 ```
 
 ## Passing data to a view
@@ -79,10 +94,10 @@ You can pass data to a view in the same way you pass data to a blade view:
 
 ```php
 // /routes/web.php
-Route::view('/', 'pages.home', ['title' => 'Hello, world']);
+Route::view('/', 'home', ['title' => 'Hello, world']);
 ```
 
-The data is then passed into the `pages/home.js` component as props:
+The data is then passed into the `home.js` component as props:
 
 ```js
 import { h } from 'preact'
