@@ -4,17 +4,26 @@ namespace Parallax\LaravelJsViews;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
+use Illuminate\Http\Request;
 
 class JsCreator
 {
+    private $request;
+    private $view;
+    private $viewPath;
+    private $viewDir;
+    private $viewName;
+    private $viewProps;
+    private $viewFactory;
+
     /**
      * Create a new JS composer.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Request $request)
     {
-        //
+        $this->request = $request;
     }
 
     /**
@@ -24,31 +33,23 @@ class JsCreator
      */
     public function create(\Illuminate\View\View $view)
     {
-        $viewPath = $view->getPath();
+        $this->view = $view;
+        $this->viewPath = $view->getPath();
 
-        $ext = pathinfo($viewPath, PATHINFO_EXTENSION);
-        if ($ext !== 'js' && $ext !== 'vue') {
-            return;
-        }
+        if (! $this->shouldHandle()) return;
 
-        $viewDir = resource_path('views');
-        $name = str_replace($viewDir . '/', '', $viewPath);
-        $name = preg_replace('/\.(js|vue)$/', '', $name);
+        $this->viewDir = resource_path('views');
+        $this->viewName = str_replace($this->viewDir . '/', '', $this->viewPath);
+        $this->viewName = preg_replace('/\.(js|vue)$/', '', $this->viewName);
 
-        $viewFactory = $view->getFactory();
-        $sharedData = (array) $viewFactory->getShared();
-        $data = $view->getData();
-        $props = array_merge($sharedData, $data);
+        $this->viewFactory = $this->view->getFactory();
+        $this->viewProps = array_merge(
+            (array) $this->viewFactory->getShared(),
+            $this->view->getData()
+        );
 
-        if (request()->ajax()) {
-            $view->setPath(__DIR__ . '/templates/json.blade.php');
-            $view->with(
-                'data',
-                json_encode([
-                    'view' => $name,
-                    'props' => $props
-                ])
-            );
+        if ($this->request->ajax()) {
+            $this->createJsonResponse();
             return;
         }
 
@@ -62,12 +63,12 @@ class JsCreator
         }
 
         $sections = [];
-        $scripts = '<!-- __laravel_js_views_scripts_start__ --><script>window.routes=' . json_encode($routes) . ';window.page="' . $name . '";window.__INITIAL_PROPS__=' . json_encode($props) . '</script><!-- __laravel_js_views_scripts_end__ -->';
+        $scripts = '<!-- __laravel_js_views_scripts_start__ --><script>window.routes=' . json_encode($routes) . ';window.page="' . $this->viewName . '";window.__INITIAL_PROPS__=' . json_encode($this->viewProps) . '</script><!-- __laravel_js_views_scripts_end__ -->';
 
         if (class_exists('V8Js') && file_exists(public_path('js/node/main.js'))) {
             $bootstrap = 'var console=["log","warn","error","info","assert","clear","count","countReset","debug","dir","dirxml","exception","group","groupCollapsed","groupEnd","profile","profileEnd","table","time","timeEnd","timeLog","timeStamp","trace"].reduce((acc,curr) => {acc[curr]=(...args)=>{require(`__laravel_console_${curr}_${JSON.stringify(args)}__`)};return acc;}, {});';
             $bootstrap .= 'var process = { env: { VUE_ENV: "server", NODE_ENV: "production" } };';
-            $bootstrap .= 'this.global = { process, page: "' . $name . '", routes: ' . json_encode($routes) . ', props: ' . json_encode($props) . ' };';
+            $bootstrap .= 'this.global = { process, page: "' . $this->viewName . '", routes: ' . json_encode($routes) . ', props: ' . json_encode($this->viewProps) . ' };';
 
             $v8 = new \V8Js();
             $v8->setModuleLoader(function($path) use ($bootstrap) {
@@ -108,12 +109,30 @@ class JsCreator
         $sections['html'] .= $scripts;
 
         $layoutManifest = json_decode(file_get_contents(public_path('layout-manifest.json')), true);
-        $view->setPath(View::getFinder()->find($layoutManifest[$name]));
+        $this->view->setPath(View::getFinder()->find($layoutManifest[$this->viewName]));
 
         foreach ($sections as $section => $value) {
-            $viewFactory->startSection($section);
+            $this->viewFactory->startSection($section);
             echo $value;
-            $viewFactory->stopSection();
+            $this->viewFactory->stopSection();
         }
+    }
+
+    private function shouldHandle()
+    {
+        $ext = pathinfo($this->viewPath, PATHINFO_EXTENSION);
+        return $ext === 'js' || $ext === 'vue';
+    }
+
+    private function createJsonResponse()
+    {
+        $this->view->setPath(__DIR__ . '/templates/json.blade.php');
+        $this->view->with(
+            'data',
+            json_encode([
+                'view' => $this->viewName,
+                'props' => $this->viewProps
+            ])
+        );
     }
 }
