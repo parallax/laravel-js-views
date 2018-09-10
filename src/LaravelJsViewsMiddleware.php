@@ -26,7 +26,7 @@ class LaravelJsViewsMiddleware
     {
         $scripts = '';
         $html = preg_replace_callback(
-            '/<!-- __laravel_js_views_scripts_start__ -->(.*?)<!-- __laravel_js_views_scripts_end__ -->/',
+            '/<laravel-js-views-scripts>(.*?)<\/laravel-js-views-scripts>/',
             function ($matches) use (&$scripts) {
                 $scripts = $matches[1];
                 return '';

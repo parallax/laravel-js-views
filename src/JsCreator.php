@@ -63,7 +63,7 @@ class JsCreator
         }
 
         $sections = [];
-        $scripts = '<!-- __laravel_js_views_scripts_start__ --><script>window.routes=' . json_encode($routes) . ';window.page="' . $this->viewName . '";window.__INITIAL_PROPS__=' . json_encode($this->viewProps) . '</script><!-- __laravel_js_views_scripts_end__ -->';
+        $scripts = '<laravel-js-views-scripts><script>window.routes=' . json_encode($routes) . ';window.page="' . $this->viewName . '";window.__INITIAL_PROPS__=' . json_encode($this->viewProps) . '</script></laravel-js-views-scripts>';
 
         if (class_exists('V8Js') && file_exists(public_path('js/node/main.js'))) {
             $bootstrap = 'var console=["log","warn","error","info","assert","clear","count","countReset","debug","dir","dirxml","exception","group","groupCollapsed","groupEnd","profile","profileEnd","table","time","timeEnd","timeLog","timeStamp","trace"].reduce((acc,curr) => {acc[curr]=(...args)=>{require(`__laravel_console_${curr}_${JSON.stringify(args)}__`)};return acc;}, {});';
