@@ -2,7 +2,6 @@
 
 namespace Parallax\LaravelJsViews;
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
 use Illuminate\Http\Request;
 
@@ -24,6 +23,7 @@ class JsCreator
     public function __construct(Request $request)
     {
         $this->request = $request;
+        $this->viewDir = resource_path('views');
     }
 
     /**
@@ -38,7 +38,6 @@ class JsCreator
 
         if (! $this->shouldHandle()) return;
 
-        $this->viewDir = resource_path('views');
         $this->viewName = str_replace($this->viewDir . '/', '', $this->viewPath);
         $this->viewName = preg_replace('/\.(js|vue)$/', '', $this->viewName);
 
@@ -53,55 +52,34 @@ class JsCreator
             return;
         }
 
-        $routes = [];
-        foreach (app()->routes->getRoutes() as $route) {
-            $routeName = $route->getName();
-            if ($routeName !== null) {
-                $uri = $route->uri;
-                $routes[$routeName] = ($uri === '/' ? '' : '/') . $route->uri;
-            }
-        }
-
         $sections = [];
-        $scripts = '<laravel-js-views-scripts><script>window.routes=' . json_encode($routes) . ';window.page="' . $this->viewName . '";window.__INITIAL_PROPS__=' . json_encode($this->viewProps) . '</script></laravel-js-views-scripts>';
+        $scripts = <<<HTML
+            <laravel-js-views-scripts>
+                <script>window.page='$this->viewName';window.__INITIAL_PROPS__={$this->json_encode($this->viewProps)}</script>
+            </laravel-js-views-scripts>
+HTML;
 
-        if (class_exists('V8Js') && file_exists(public_path('js/node/main.js'))) {
-            $bootstrap = 'var console=["log","warn","error","info","assert","clear","count","countReset","debug","dir","dirxml","exception","group","groupCollapsed","groupEnd","profile","profileEnd","table","time","timeEnd","timeLog","timeStamp","trace"].reduce((acc,curr) => {acc[curr]=(...args)=>{require(`__laravel_console_${curr}_${JSON.stringify(args)}__`)};return acc;}, {});';
-            $bootstrap .= 'var process = { env: { VUE_ENV: "server", NODE_ENV: "production" } };';
-            $bootstrap .= 'this.global = { process, page: "' . $this->viewName . '", routes: ' . json_encode($routes) . ', props: ' . json_encode($this->viewProps) . ' };';
+        try {
+            $process = [
+                'env' => [
+                    'VUE_ENV' => 'server',
+                    'NODE_ENV' => 'production'
+                ]
+            ];
+            $renderer = new Renderer(
+                file_get_contents(public_path('js/node/main.js')),
+                [
+                    'process' => $process,
+                    'this.global' => [
+                        'process' => $process,
+                        'page' => $this->viewName,
+                        'props' => $this->viewProps
+                    ]
+                ]
+            );
 
-            $v8 = new \V8Js();
-            $v8->setModuleLoader(function($path) use ($bootstrap) {
-                preg_match('/^__laravel_console_(log|warn|error|info|assert|clear|count|countReset|debug|dir|dirxml|exception|group|groupCollapsed|groupEnd|profile|profileEnd|table|time|timeEnd|timeLog|timeStamp|trace)_(.*?)__$/', $path, $matches);
-                if (count($matches) > 0) {
-                    $type = $matches[1];
-                    $args = json_decode($matches[2]);
-                    array_map(function($arg) use ($type) {
-                        switch ($type) {
-                            case 'log':
-                                Log::debug($arg);
-                                break;
-                            case 'warn':
-                                Log::warning($arg);
-                                break;
-                            case 'error':
-                                Log::error($arg);
-                                break;
-                            case 'info':
-                                Log::info($arg);
-                                break;
-                        }
-                    }, $args);
-                    return 'module.exports=undefined;';
-                }
-                return $bootstrap . file_get_contents(public_path($path));
-            });
-            $js = $bootstrap . file_get_contents(public_path('js/node/main.js'));
-            ob_start();
-            $v8->executeString($js);
-
-            $sections = array_merge(json_decode(ob_get_clean(), true), $sections);
-        } else {
+            $sections = json_decode($renderer->render(), true);
+        } catch (\Throwable $e) {
             $sections['html'] = config('js-views.fallback', '<div id="app"></div>');
         }
 
@@ -134,5 +112,10 @@ class JsCreator
                 'props' => $this->viewProps
             ])
         );
+    }
+
+    private function json_encode($x)
+    {
+        return json_encode($x);
     }
 }
