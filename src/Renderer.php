@@ -40,7 +40,7 @@ JS;
             return $this->moduleLoader($path);
         });
 
-        $js = $this->bootstrap . file_get_contents(public_path('js/node/main.js'));
+        $js = $this->bootstrap . $this->js;
 
         ob_start();
         $v8->executeString($js);
