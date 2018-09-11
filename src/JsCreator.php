@@ -55,7 +55,7 @@ class JsCreator
         $sections = [];
         $scripts = <<<HTML
             <laravel-js-views-scripts>
-                <script>window.page='$this->viewName';window.__INITIAL_PROPS__={$this->json_encode($this->viewProps)}</script>
+                <script>window.page='$this->viewName';window.__INITIAL_PROPS__={$this->encode_json($this->viewProps)}</script>
             </laravel-js-views-scripts>
 HTML;
 
@@ -114,7 +114,7 @@ HTML;
         );
     }
 
-    private function json_encode($x)
+    private function encode_json($x)
     {
         return json_encode($x);
     }
