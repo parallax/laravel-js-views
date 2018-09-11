@@ -1,5 +1,5 @@
-if (process.env.JS_ENV === 'node') {
-  require('./entry-node')
+if (process.env.LARAVEL_ENV === 'server') {
+  require('./entry-server')
 } else {
-  require('./entry-web')
+  require('./entry-client')
 }

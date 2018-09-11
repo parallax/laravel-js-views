@@ -39,10 +39,10 @@ let mix = require('laravel-mix')
 + mix.views()
 ```
 
-Add a new npm script to `package.json` which compiles web and node versions of your views for production:
+Add a new npm script to `package.json` which compiles client and server versions of your views for production:
 
 ```
-"build": "cross-env JS_ENV=web npm run prod && cross-env JS_ENV=node npm run prod"
+"build": "cross-env LARAVEL_ENV=client npm run prod && cross-env LARAVEL_ENV=server npm run prod"
 ```
 
 ## Layouts
