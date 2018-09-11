@@ -2,12 +2,16 @@
 
 namespace Parallax\LaravelJsViews;
 
-use Illuminate\Support\Facades\Log;
-
 class Renderer
 {
     private $js;
     private $vars;
+    private $console = [
+        'log' => 'debug',
+        'warn' => 'warning',
+        'error' => 'error',
+        'info' => 'info'
+    ];
     private $bootstrap = <<<'JS'
         var console = new Proxy({}, {
             get(_, prop) {
@@ -51,23 +55,12 @@ JS;
         if (count($matches) > 0) {
             $type = $matches[1];
             $args = json_decode($matches[2]);
-            array_map(function($arg) use ($type) {
-                switch ($type) {
-                    case 'log':
-                        Log::debug($arg);
-                        break;
-                    case 'warn':
-                        Log::warning($arg);
-                        break;
-                    case 'error':
-                        Log::error($arg);
-                        break;
-                    case 'info':
-                        Log::info($arg);
-                        break;
-                }
-            }, $args);
-
+            if (isset($this->console[$type])) {
+                array_map(
+                    ['Illuminate\Support\Facades\Log', $this->console[$type]],
+                    $args
+                );
+            }
             return 'module.exports=undefined;';
         }
 
