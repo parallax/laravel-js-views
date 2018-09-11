@@ -15,7 +15,7 @@ class LaravelJsViewsMiddleware
 
         if ($scripts !== '') {
             $response->setContent(
-                str_replace('<head>', '<head>' . $scripts, $html)
+                preg_replace('/(<head(>|\s[^>]*>))/i', '$0' . $scripts, $html)
             );
         }
 
