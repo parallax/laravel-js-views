@@ -53,9 +53,19 @@ class JsCreator
         }
 
         $sections = [];
+        $globals = array_merge(
+            [
+                '__INITIAL_LARAVEL_PAGE__' => $this->viewName,
+                '__INITIAL_LARAVEL_PROPS__' => $this->viewProps
+            ],
+            array_map(function ($global) {
+                return is_callable($global) ? $global() : $global;
+            }, config('js-views.globals', []))
+        );
+
         $scripts = <<<HTML
             <laravel-js-views-scripts>
-                <script>window.page='$this->viewName';window.__INITIAL_PROPS__={$this->encode_json($this->viewProps)}</script>
+                <script>{$this->stringifyGlobals($globals)}</script>
             </laravel-js-views-scripts>
 HTML;
 
@@ -70,11 +80,7 @@ HTML;
                 file_get_contents(public_path('js/node/main.js')),
                 [
                     'process' => $process,
-                    'this.global' => [
-                        'process' => $process,
-                        'page' => $this->viewName,
-                        'props' => $this->viewProps
-                    ]
+                    'this.global' => array_merge($globals, ['process' => $process])
                 ]
             );
 
@@ -114,8 +120,10 @@ HTML;
         );
     }
 
-    private function encode_json($x)
+    private function stringifyGlobals($globals, $var = 'window')
     {
-        return json_encode($x);
+        return implode('', array_map(function ($k, $v) use ($var) {
+            return $var . '["' . $k . '"]=' . json_encode($v) . ';';
+        }, array_keys($globals), $globals));
     }
 }
