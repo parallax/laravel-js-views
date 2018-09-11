@@ -3,6 +3,7 @@
 namespace Parallax\LaravelJsViews;
 
 use Closure;
+use Illuminate\Http\Response;
 
 class LaravelJsViewsMiddleware
 {
@@ -10,13 +11,15 @@ class LaravelJsViewsMiddleware
     {
         $response = $next($request);
 
-        $html = $response->getContent();
-        list($html, $scripts) = $this->extractScripts($html);
+        if ($this->shouldHandle($response)) {
+            $html = $response->getContent();
+            list($html, $scripts) = $this->extractScripts($html);
 
-        if ($scripts !== '') {
-            $response->setContent(
-                preg_replace('/(<head(>|\s[^>]*>))/i', '$0' . $scripts, $html)
-            );
+            if ($scripts !== '') {
+                $response->setContent(
+                    preg_replace('/(<head(>|\s[^>]*>))/i', '$0' . $scripts, $html)
+                );
+            }
         }
 
         return $response;
@@ -35,5 +38,21 @@ class LaravelJsViewsMiddleware
         );
 
         return [$html, $scripts];
+    }
+
+    protected function isAResponseObject($response)
+    {
+        return is_object($response) && $response instanceof Response;
+    }
+
+    protected function isAnHtmlResponse(Response $response)
+    {
+        $type = $response->headers->get('Content-Type');
+        return strtolower(strtok($type, ';')) === 'text/html';
+    }
+
+    protected function shouldHandle($response)
+    {
+        return $this->isAResponseObject($response) && $this->isAnHtmlResponse($response);
     }
 }
