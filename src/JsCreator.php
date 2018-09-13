@@ -77,7 +77,7 @@ HTML;
                 ]
             ];
             $renderer = new Renderer(
-                file_get_contents(public_path('js/node/main.js')),
+                file_get_contents(public_path('js/server/main.js')),
                 [
                     'process' => $process,
                     'this.global' => array_merge($globals, ['process' => $process])

@@ -55,7 +55,7 @@ class ViewsPreset extends Preset
 
         $packages['scripts'] = array_merge(
             array_key_exists('scripts', $packages) ? $packages['scripts'] : [],
-            ['build' => 'cross-env JS_ENV=web npm run prod && cross-env JS_ENV=node npm run prod']
+            ['build' => 'cross-env LARAVEL_ENV=client npm run prod && cross-env LARAVEL_ENV=server npm run prod']
         );
 
         file_put_contents(

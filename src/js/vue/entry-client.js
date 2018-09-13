@@ -1,4 +1,4 @@
-import render from '__laravel_render_web__'
+import render from '__laravel_render_client__'
 
 function getCurrentUrl() {
   return `${window.location.pathname || ''}${window.location.search || ''}`
@@ -58,7 +58,7 @@ function load(path) {
         v = json.view
         d = json.props
 
-        return import(/* webpackChunkName: 'js/web/pages/[request]' */ `__laravel_views__/${
+        return import(/* webpackChunkName: 'js/client/pages/[request]' */ `__laravel_views__/${
           json.view
         }.vue`)
       })

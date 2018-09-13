@@ -5,7 +5,7 @@ let Preact = require('laravel-mix/src/components/Preact.js')
 let webpack = require('webpack')
 let ExtendsManifestPlugin = require('./src/js/extends-manifest-plugin.js')
 let path = require('path')
-let env = process.env.JS_ENV || 'web'
+let env = process.env.LARAVEL_ENV || 'client'
 
 let deps = {
   preact: ['preact-render-to-string'],
@@ -18,8 +18,8 @@ mix.extend(
     register(lib = 'preact') {
       Mix.bundlingJavaScript = true
 
-      if (env === 'node') {
-        Mix.manifest = new Manifest('mix-manifest-node.json')
+      if (env === 'server') {
+        Mix.manifest = new Manifest('mix-manifest-server.json')
       }
 
       this.lib = lib.toLowerCase()
@@ -46,11 +46,11 @@ mix.extend(
 
       dset(
         config,
-        ['entry', env === 'node' ? 'js/node/main' : 'js/main'],
+        ['entry', env === 'server' ? 'js/server/main' : 'js/main'],
         path.resolve(__dirname, `./src/js/${this.lib}/entry.js`)
       )
 
-      config.target = env
+      config.target = env === 'server' ? 'node' : 'web'
 
       dset(
         config,
@@ -59,22 +59,22 @@ mix.extend(
       )
       dset(
         config,
-        ['resolve', 'alias', '__laravel_render_node__$'],
-        path.resolve(__dirname, `./src/js/${this.lib}/render-node.js`)
+        ['resolve', 'alias', '__laravel_render_server__$'],
+        path.resolve(__dirname, `./src/js/${this.lib}/render-server.js`)
       )
       dset(
         config,
-        ['resolve', 'alias', '__laravel_render_web__$'],
-        path.resolve(__dirname, `./src/js/${this.lib}/render-web.js`)
+        ['resolve', 'alias', '__laravel_render_client__$'],
+        path.resolve(__dirname, `./src/js/${this.lib}/render-client.js`)
       )
 
       config.plugins.push(
         new webpack.DefinePlugin({
-          'process.env.JS_ENV': JSON.stringify(env)
+          'process.env.LARAVEL_ENV': JSON.stringify(env)
         })
       )
 
-      if (env !== 'node') {
+      if (env !== 'server') {
         let CleanWebpackPlugin = require('clean-webpack-plugin')
         config.plugins.push(
           new CleanWebpackPlugin(['public/js'], { root: config.context }),
