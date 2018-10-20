@@ -53,15 +53,12 @@ class JsCreator
         }
 
         $sections = [];
-        $globals = array_merge(
-            [
-                '__INITIAL_LARAVEL_PAGE__' => $this->viewName,
-                '__INITIAL_LARAVEL_PROPS__' => $this->viewProps
-            ],
-            array_map(function ($global) {
-                return is_callable($global) ? $global() : $global;
-            }, config('js-views.globals', []))
-        );
+        $globals = [
+            'Laravel' => [
+                '___page' => $this->viewName,
+                '___props' => $this->viewProps
+            ]
+        ];
 
         $scripts = <<<HTML
             <laravel-js-views-scripts>

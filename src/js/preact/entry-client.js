@@ -6,12 +6,12 @@ function getCurrentUrl() {
 
 let loaded = {
   [getCurrentUrl()]: import(/* webpackChunkName: 'js/[request]' */ `__laravel_views__/${
-    window.__INITIAL_LARAVEL_PAGE__
+    window.Laravel.___page
   }.js`).then(c => {
     return {
-      view: window.__INITIAL_LARAVEL_PAGE__,
+      view: window.Laravel.___page,
       Component: c.default,
-      data: window.__INITIAL_LARAVEL_PROPS__
+      data: window.Laravel.___props
     }
   })
 }

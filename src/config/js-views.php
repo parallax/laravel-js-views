@@ -1,6 +1,5 @@
 <?php
 
 return [
-    'fallback' => '<div id="app"></div>',
-    'globals' => []
+    'fallback' => '<div id="app"></div>'
 ];
