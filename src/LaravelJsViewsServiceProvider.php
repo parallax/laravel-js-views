@@ -9,7 +9,7 @@ use Illuminate\Foundation\Console\PresetCommand;
 class LaravelJsViewsServiceProvider extends ServiceProvider
 {
     /**
-     *
+     * Perform post-registration booting of services.
      *
      * @return void
      */
@@ -39,5 +39,17 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
         View::addExtension('vue', 'blade');
 
         View::creator('*', JsCreator::class);
+    }
+
+    /**
+     * Register bindings in the container.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->mergeConfigFrom(
+            __DIR__ . '/config/js-views.php', 'expose'
+        );
     }
 }
