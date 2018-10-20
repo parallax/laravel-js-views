@@ -3,6 +3,7 @@
 namespace Parallax\LaravelJsViews;
 
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 
 class JsCreator
@@ -42,9 +43,12 @@ class JsCreator
         $this->viewName = preg_replace('/\.(js|vue)$/', '', $this->viewName);
 
         $this->viewFactory = $this->view->getFactory();
-        $this->viewProps = array_merge(
-            (array) $this->viewFactory->getShared(),
-            $this->view->getData()
+        $this->viewProps = Arr::except(
+            array_merge(
+                (array) $this->viewFactory->getShared(),
+                $this->view->getData()
+            ),
+            config('js-views.exclude_props', ['__env', 'app'])
         );
 
         if ($this->request->ajax()) {
