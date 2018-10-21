@@ -58,12 +58,17 @@ JS;
             if (isset($this->console[$type])) {
                 array_map(
                     ['Illuminate\Support\Facades\Log', $this->console[$type]],
-                    $args
+                    array_map([$this, 'jsonEncodePretty'], $args)
                 );
             }
             return 'module.exports=undefined;';
         }
 
         return $this->bootstrap . file_get_contents(public_path($path));
+    }
+
+    private function jsonEncodePretty($data)
+    {
+        return json_encode($data, JSON_PRETTY_PRINT);
     }
 }
