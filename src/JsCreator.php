@@ -5,6 +5,7 @@ namespace Parallax\LaravelJsViews;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use Tightenco\Ziggy\RoutePayload;
 
 class JsCreator
 {
@@ -63,6 +64,20 @@ class JsCreator
                 '___props' => $this->viewProps
             ]
         ];
+
+        // start Ziggy
+        $url = url('/');
+        $parsedUrl = parse_url($url);
+
+        $globals['Ziggy'] = [
+            'namedRoutes' => RoutePayload::compile(app()->router),
+            'baseUrl' => $url . '/',
+            'baseProtocol' => array_key_exists('scheme', $parsedUrl) ? $parsedUrl['scheme'] : 'http',
+            'baseDomain' => array_key_exists('host', $parsedUrl) ? $parsedUrl['host'] : '',
+            'basePort' => array_key_exists('port', $parsedUrl) ? $parsedUrl['port'] : false,
+            'defaultParameters' => method_exists(app('url'), 'getDefaultParameters') ? app('url')->getDefaultParameters() : []
+        ];
+        // end Ziggy
 
         $scripts = <<<HTML
             <laravel-js-views-scripts>
