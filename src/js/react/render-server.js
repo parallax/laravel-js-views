@@ -1,12 +1,13 @@
 import React from 'react'
 import ReactDOMServer from 'react-dom/server'
+import App from '__laravel_app__'
 
-export default function render(App, props) {
+export default function render(Component, props) {
   return {
     html: ReactDOMServer.renderToString(
-      React.createElement('div', { id: 'app' }, [
-        React.createElement(App, props)
-      ])
+      <div id="app">
+        <App component={Component} props={props} />
+      </div>
     )
   }
 }

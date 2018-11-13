@@ -1,8 +1,13 @@
 import { h } from 'preact'
 import renderToString from 'preact-render-to-string'
+import App from '__laravel_app__'
 
-export default function render(App, props) {
+export default function render(Component, props) {
   return {
-    html: renderToString(h('div', { id: 'app' }, [h(App, props)]))
+    html: renderToString(
+      <div id="app">
+        <App component={Component} props={props} />
+      </div>
+    )
   }
 }

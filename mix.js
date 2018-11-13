@@ -16,13 +16,14 @@ let deps = {
 mix.extend(
   'views',
   new class {
-    register(lib = 'preact', { entry = [] } = {}) {
+    register(lib = 'preact', { entry = [], app } = {}) {
       if (env === 'server') {
         Mix.manifest = new Manifest('mix-manifest-server.json')
       }
 
       this.lib = lib.toLowerCase()
       this.entry = entry
+      this.app = app
 
       if (this.lib === 'vue') {
         this.super = new Vue()
@@ -71,6 +72,16 @@ mix.extend(
         config,
         ['resolve', 'alias', '__laravel_render_client__$'],
         path.resolve(__dirname, `./src/js/${this.lib}/render-client.js`)
+      )
+      dset(
+        config,
+        ['resolve', 'alias', '__laravel_app__$'],
+        this.app
+          ? path.resolve(config.context, this.app)
+          : path.resolve(
+              __dirname,
+              `./src/js/${this.lib}/App.${this.lib === 'vue' ? 'vue' : 'js'}`
+            )
       )
 
       config.plugins.push(
