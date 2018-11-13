@@ -17,8 +17,6 @@ mix.extend(
   'views',
   new class {
     register(lib = 'preact') {
-      Mix.bundlingJavaScript = true
-
       if (env === 'server') {
         Mix.manifest = new Manifest('mix-manifest-server.json')
       }
