@@ -16,12 +16,13 @@ let deps = {
 mix.extend(
   'views',
   new class {
-    register(lib = 'preact') {
+    register(lib = 'preact', { entry = [] } = {}) {
       if (env === 'server') {
         Mix.manifest = new Manifest('mix-manifest-server.json')
       }
 
       this.lib = lib.toLowerCase()
+      this.entry = entry
 
       if (this.lib === 'vue') {
         this.super = new Vue()
@@ -48,7 +49,10 @@ mix.extend(
       dset(
         config,
         ['entry', env === 'server' ? 'js/server/main' : 'js/main'],
-        path.resolve(__dirname, `./src/js/${this.lib}/entry.js`)
+        [
+          ...this.entry.map(e => path.resolve(config.context, e)),
+          path.resolve(__dirname, `./src/js/${this.lib}/entry.js`)
+        ]
       )
 
       config.target = env === 'server' ? 'node' : 'web'
