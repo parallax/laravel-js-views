@@ -2,13 +2,15 @@ let mix = require('laravel-mix')
 let Manifest = require('laravel-mix/src/Manifest.js')
 let Vue = require('laravel-mix/src/components/Vue.js')
 let Preact = require('laravel-mix/src/components/Preact.js')
+let React = require('laravel-mix/src/components/React.js')
 let webpack = require('webpack')
 let path = require('path')
 let env = process.env.LARAVEL_ENV || 'client'
 
 let deps = {
   preact: ['preact-render-to-string'],
-  vue: ['vue-server-renderer']
+  vue: ['vue-server-renderer'],
+  react: []
 }
 
 mix.extend(
@@ -27,6 +29,8 @@ mix.extend(
         this.super = new Vue()
       } else if (this.lib === 'preact') {
         this.super = new Preact()
+      } else if (this.lib === 'react') {
+        this.super = new React()
       }
     }
 

@@ -50,6 +50,10 @@ JS;
 
     private function moduleLoader($path)
     {
+        if ($path === 'stream') {
+            return 'module.exports = { Readable: null };';
+        }
+
         preg_match('/^__laravel_console_([a-z]+)_(.*?)__$/i', $path, $matches);
 
         if (count($matches) > 0) {

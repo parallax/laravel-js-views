@@ -21,6 +21,13 @@ class LaravelJsViewsServiceProvider extends ServiceProvider
 
         $this->app['router']->pushMiddlewareToGroup('web', LaravelJsViewsMiddleware::class);
 
+        PresetCommand::macro('views:react', function($command) {
+            ReactViewsPreset::install();
+
+            $command->info('laravel-js-views (React) scaffolding installed successfully.');
+            $command->comment('Please run "npm install && npm run build" to compile your fresh scaffolding.');
+        });
+
         PresetCommand::macro('views:preact', function($command) {
             PreactViewsPreset::install();
 
