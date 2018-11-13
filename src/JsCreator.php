@@ -58,10 +58,10 @@ class JsCreator
 
         $sections = [];
         $globals = [
-            'Laravel' => [
-                '___page' => $this->viewName,
-                '___props' => $this->viewProps
-            ]
+            'Laravel' => array_merge(
+                $this->viewProps,
+                ['__page' => $this->viewName]
+            )
         ];
 
         $scripts = <<<HTML
