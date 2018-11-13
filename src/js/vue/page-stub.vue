@@ -1,3 +1,3 @@
-<template extends="layouts.default">
+<template>
   <h1>Welcome</h1>
 </template>

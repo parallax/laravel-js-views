@@ -52,14 +52,14 @@ Create a blade layout in your `/resources/views` directory, for example `/resour
 ```html
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Example</title>
-</head>
-<body>
-  @yield('html')
-  <script src="{{ mix('/js/main.js') }}"></script>
-</body>
+  <head>
+    <meta charset="utf-8">
+    <title>Example</title>
+  </head>
+  <body>
+    @yield('html')
+    <script src="{{ mix('/js/main.js') }}"></script>
+  </body>
 </html>
 ```
 
@@ -70,15 +70,8 @@ Create your view components in the `/resources/views` directory, for example `/r
 ```js
 import { h, Component } from 'preact'
 
-export default class Home extends Component {
-  constructor(props) {
-    super(props)
-    this.extends = 'layouts.default'
-  }
-  render() {
-    return <h1>Hello, world</h1>
-  }
-}
+let Home = () => <h1>Hello, world</h1>
+export default Home
 ```
 
 Render the view like you would any blade view:
@@ -103,6 +96,5 @@ The data is then passed into the `home.js` component as props:
 import { h } from 'preact'
 
 let Home = ({ title }) => <h1>{title}</h1>
-Home.extends = 'layouts.default'
 export default Home
 ```

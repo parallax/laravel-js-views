@@ -120,6 +120,6 @@ class ViewsPreset extends Preset
      */
     protected static function createLayout()
     {
-        copy(__DIR__.'/templates/layout-stub.blade.php', resource_path('views/layouts/example.blade.php'));
+        copy(__DIR__.'/templates/layout-stub.blade.php', resource_path('views/layouts/default.blade.php'));
     }
 }

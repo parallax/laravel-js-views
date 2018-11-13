@@ -93,8 +93,7 @@ HTML;
         // TODO: check there’s a `html` section defined
         $sections['html'] .= $scripts;
 
-        $layoutManifest = json_decode(file_get_contents(public_path('layout-manifest.json')), true);
-        $this->view->setPath(View::getFinder()->find($layoutManifest[$this->viewName]));
+        $this->view->setPath(View::getFinder()->find(config('js-views.layout')));
 
         foreach ($sections as $section => $value) {
             $this->viewFactory->startSection($section);

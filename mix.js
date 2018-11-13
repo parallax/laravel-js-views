@@ -3,7 +3,6 @@ let Manifest = require('laravel-mix/src/Manifest.js')
 let Vue = require('laravel-mix/src/components/Vue.js')
 let Preact = require('laravel-mix/src/components/Preact.js')
 let webpack = require('webpack')
-let ExtendsManifestPlugin = require('./src/js/extends-manifest-plugin.js')
 let path = require('path')
 let env = process.env.LARAVEL_ENV || 'client'
 
@@ -77,8 +76,7 @@ mix.extend(
       if (env !== 'server') {
         let CleanWebpackPlugin = require('clean-webpack-plugin')
         config.plugins.push(
-          new CleanWebpackPlugin(['public/js'], { root: config.context }),
-          new ExtendsManifestPlugin()
+          new CleanWebpackPlugin(['public/js'], { root: config.context })
         )
       }
     }
